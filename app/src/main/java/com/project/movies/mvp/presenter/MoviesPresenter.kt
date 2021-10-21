@@ -5,16 +5,13 @@ import com.project.movies.mvp.model.repository.IMoviesRepository
 import com.project.movies.mvp.presenter.list.IMoviesListPresenter
 import com.project.movies.mvp.view.MoviesView
 import com.project.movies.mvp.view.list.MovieItemView
-import com.project.movies.navigation.Screens
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import moxy.MvpPresenter
-import ru.terrakok.cicerone.Router
 import javax.inject.Inject
 
 class MoviesPresenter(): MvpPresenter<MoviesView>() {
 
-    @Inject lateinit var router: Router
     @Inject
     lateinit var moviesRepository: IMoviesRepository
     @Inject lateinit var uiScheduler: Scheduler
@@ -43,9 +40,10 @@ class MoviesPresenter(): MvpPresenter<MoviesView>() {
         viewState.init()
         loadMovies(1)
 
-        moviesListPresenter.itemClickListener = { view ->
-            router.navigateTo(Screens.DetailsScreen(moviesListPresenter.movies[view.pos]))
-            moviesListPresenter.currentItem = view.pos
+        moviesListPresenter.itemClickListener = { movieItemView ->
+            moviesListPresenter.currentItem = movieItemView.pos
+            val movie = moviesListPresenter.movies[movieItemView.pos]
+            viewState.openDetailsFragment(movie)
         }
     }
 
@@ -60,11 +58,6 @@ class MoviesPresenter(): MvpPresenter<MoviesView>() {
                     viewState.updateMoviesList()
                 },
                 { println("onError: ${it.message}") }))
-    }
-
-    fun backClick(): Boolean {
-        router.exit()
-        return true
     }
 
     override fun onDestroy() {
