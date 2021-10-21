@@ -4,24 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.project.movies.R
 import com.project.movies.mvp.model.entity.Movie
 import com.project.movies.mvp.presenter.MoviesPresenter
 import com.project.movies.mvp.view.MoviesView
 import com.project.movies.ui.App
-import com.project.movies.ui.BackButtonListener
 import com.project.movies.ui.adapter.EndlessRecyclerViewScrollListener
 import com.project.movies.ui.adapter.MoviesRvAdapter
 import kotlinx.android.synthetic.main.fragment_movies.*
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 
-class MoviesFragment: MvpAppCompatFragment(), MoviesView, BackButtonListener {
-
-    companion object {
-        fun newInstance() = MoviesFragment()
-    }
+class MoviesFragment: MvpAppCompatFragment(), MoviesView {
 
     val presenter: MoviesPresenter by moxyPresenter {
         MoviesPresenter().apply{ App.instance.appComponent.inject(this)}
@@ -64,6 +60,9 @@ class MoviesFragment: MvpAppCompatFragment(), MoviesView, BackButtonListener {
         movies_recyclerview?.layoutManager?.scrollToPosition(currentItem)
     }
 
-    override fun backPressed() = presenter.backClick()
+    override fun openDetailsFragment(movie: Movie) {
+        val action = MoviesFragmentDirections.actionMoviesFragmentToDetailsFragment(movie)
+        findNavController().navigate(action)
+    }
 
 }
